@@ -28,13 +28,13 @@ void openSerialPort()
 
 void selectSerialPort()
 {
-  String result = (String) JOptionPane.showInputDialog(this,
-    "Select the serial port that corresponds to your Arduino board.",
-    "Select serial port",
-    JOptionPane.PLAIN_MESSAGE,
-    null,
-    Serial.list(),
-    0);
+  String result = (String) JOptionPane.showInputDialog(null,
+   "Select the serial port that corresponds to your Arduino board.",
+   "Select serial port",
+   JOptionPane.PLAIN_MESSAGE,
+   null,
+   Serial.list(),
+   0);
     
   if (result != null) {
     portname = result;
@@ -65,6 +65,7 @@ void draw()
   text("0: zero machine (set home to the current location)", 12, y); y += dy;
   text("g: stream a g-code file", 12, y); y += dy;
   text("x: stop streaming g-code (this is NOT immediate)", 12, y); y += dy;
+  text("z: close com port", 12, y); y += dy;
   y = height - dy;
   text("current jog speed: " + speed + " inches per step", 12, y); y -= dy;
   text("current serial port: " + portname, 12, y); y -= dy;
@@ -75,7 +76,7 @@ void keyPressed()
   if (key == '1') speed = 0.001;
   if (key == '2') speed = 0.01;
   if (key == '3') speed = 0.1;
-  
+  if (key == 'z') port.stop();
   if (!streaming) {
     if (keyCode == LEFT) port.write("G91\nG20\nG00 X-" + speed + " Y0.000 Z0.000\n");
     if (keyCode == RIGHT) port.write("G91\nG20\nG00 X" + speed + " Y0.000 Z0.000\n");
@@ -92,6 +93,7 @@ void keyPressed()
     if (key == '0') openSerialPort();
     if (key == 'p') selectSerialPort();
     if (key == '$') port.write("$$\n");
+    
   }
   
   if (!streaming && key == 'g') {
@@ -143,4 +145,3 @@ void serialEvent(Serial p)
   if (s.trim().startsWith("ok")) stream();
   if (s.trim().startsWith("error")) stream(); // XXX: really?
 }
-
